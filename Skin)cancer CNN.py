@@ -178,7 +178,4 @@ df_train = df_train.reset_index()
 df_val = df_val.reset_index()
 # df_test = df_test.reset_index()
 
-"""
-Step 2. Model building
-"""
 
