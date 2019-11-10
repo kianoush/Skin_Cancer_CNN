@@ -78,7 +78,7 @@ def compute_img_mean_std(image_paths):
     return means,stdevs
 
 
-norm_mean,norm_std = compute_img_mean_std(all_image_path)
+#norm_mean,norm_std = compute_img_mean_std(all_image_path)
 
 
 """Add three columns to the original DataFrame, path (image path), 
@@ -152,6 +152,8 @@ print(len(df_val))
 
 
 print(df_train['cell_type_idx'].value_counts())
+print(df_train['cell_type'].value_counts())
+print(df_val['cell_type_idx'].value_counts())
 print(df_val['cell_type'].value_counts())
 
 """
@@ -164,7 +166,7 @@ print(df_val['cell_type'].value_counts())
 data_aug_rate = [15,10,5,50,0,40,5]
 for i in range(7):
     if data_aug_rate[i]:
-        df_train=df_train.append([df_train.loc[df_train['cell_type_idx'] == i,:]]*(data_aug_rate[i]-1), ignore_index=True)
+        df_train01 = df_train.append([df_train.loc[df_train['cell_type_idx'] == i,:]]*(data_aug_rate[i]-1), ignore_index=True)
 df_train['cell_type'].value_counts()
 
 """
@@ -172,7 +174,7 @@ At the beginning, I divided the data into three parts, training set, validation 
 Considering the small amount of data, I did not further divide the validation set data in practice.
 """
 
-# # We can split the test set again in a validation set and a true test set:
+# We can split the test set again in a validation set and a true test set:
 # df_val, df_test = train_test_split(df_val, test_size=0.5)
 df_train = df_train.reset_index()
 df_val = df_val.reset_index()
