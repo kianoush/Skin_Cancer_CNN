@@ -82,7 +82,7 @@ def compute_img_mean_std(image_paths):
     return means,stdevs
 
 
-#norm_mean,norm_std = compute_img_mean_std(all_image_path)
+norm_mean,norm_std = compute_img_mean_std(all_image_path)
 
 
 """Add three columns to the original DataFrame, path (image path), 
@@ -154,11 +154,6 @@ df_train = df_original[df_original['train_or_val'] == 'train']
 print(len(df_train))
 print(len(df_val))
 
-
-print(df_train['cell_type_idx'].value_counts())
-print(df_train['cell_type'].value_counts())
-print(df_val['cell_type_idx'].value_counts())
-print(df_val['cell_type'].value_counts())
 
 """
  From the above statistics of each category, we can see that there is a serious class imbalance in the training data.
@@ -247,17 +242,6 @@ def initialize_model(model_name, num_classes, feature_extract, use_pretrained=Tr
         exit()
     return model_ft, input_size
 
-# if use_GPU:
-#     model = model.cuda()
-#
-# def to_var(x, volatile=False):
-#     if use_GPU:
-#         x = x.cuda()
-#     return Variable(x, volatile=volatile)
-#
-#
-# inputs = to_var(inputs)
-# targets = to_var(targets)
 
 # resnet,vgg,densenet,inception
 model_name = 'resnet'
@@ -277,17 +261,21 @@ model = model_ft.to(device)
 # norm_mean = (0.49139968, 0.48215827, 0.44653124)
 # norm_std = (0.24703233, 0.24348505, 0.26158768)
 # define the transformation of the train images.
-train_transform = transforms.Compose([transforms.Resize((input_size,input_size)),transforms.RandomHorizontalFlip(),
-                                      transforms.RandomVerticalFlip(),transforms.RandomRotation(20),
-                                      transforms.ColorJitter(brightness=0.1, contrast=0.1, hue=0.1),
-                                        transforms.ToTensor(), ])#transforms.Normalize(norm_mean, norm_std)
+train_transform = transforms.Compose([transforms.Resize((input_size,input_size)),
+                                      transforms.RandomHorizontalFlip(),
+                                      transforms.RandomVerticalFlip(),
+                                      transforms.RandomRotation(70),
+                                      transforms.ColorJitter(0.1, 0.1, 0.1, 0.01),
+                                      transforms.ToTensor(),
+                                      transforms.Normalize(norm_mean, norm_std)])
 # define the transformation of the val images.
-val_transform = transforms.Compose([transforms.Resize((input_size,input_size)), transforms.ToTensor(),
-                                    ])#transforms.Normalize(norm_mean, norm_std)
+val_transform = transforms.Compose([transforms.Resize((input_size,input_size)),
+                                    transforms.ToTensor(),
+                                    transforms.Normalize(norm_mean, norm_std)])
 
 # Define a pytorch dataloader for this dataset
 class HAM10000(Dataset):
-    print("kian Class")
+
     def __init__(self, df, transform=None):
         super(HAM10000, self).__init__()
         self.df = df
@@ -308,13 +296,14 @@ class HAM10000(Dataset):
 
 # Define the training set using the table train_df and using our defined transitions (train_transform)
 training_set = HAM10000(df_train, transform=train_transform)
-train_loader = torch.utils.data.DataLoader(training_set, batch_size=16, shuffle=True, num_workers=4)
+train_loader = torch.utils.data.DataLoader(training_set, batch_size=32, shuffle=True)
 # Same for the validation set:
 validation_set = HAM10000(df_val, transform=train_transform)
-val_loader = torch.utils.data.DataLoader(validation_set, batch_size=32, shuffle=False, num_workers=4)
+val_loader = torch.utils.data.DataLoader(validation_set, batch_size=32, shuffle=False)
 
 # we use Adam optimizer, use cross entropy loss as our loss function
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
+lr_sch = torch.optim.lr_scheduler.StepLR(optimizer, 1, gamma=0.5)
 criterion = nn.CrossEntropyLoss().to(device)
 
 # this function is used during training process, to calculation the loss and accuracy
@@ -338,13 +327,11 @@ class AverageMeter(object):
 
 total_loss_train, total_acc_train = [],[]
 def train(train_loader, model, criterion, optimizer, epoch):
-    print('Kia1')
     model.train()
     train_loss = AverageMeter()
     train_acc = AverageMeter()
     curr_iter = (epoch - 1) * len(train_loader)
     for i, data in enumerate(train_loader):
-        print('KIa2')
         images, labels = data
         N = images.size(0)
         # print('image shape:',images.size(0), 'label shape',labels.size(0))
