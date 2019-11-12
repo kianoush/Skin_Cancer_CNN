@@ -1,5 +1,7 @@
 # Skin_Cancer_CNN
 
+![](SC.jpg)
+
 Original Data Source
 Original Challenge: https://challenge2018.isic-archive.com
 https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/DBW86T [1] Noel Codella, Veronica Rotemberg, Philipp Tschandl, 
