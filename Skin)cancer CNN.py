@@ -32,7 +32,7 @@ use_GPU = torch.cuda.is_available()
 
 
 #base_skin_dir = os.path.join('.\datasets\\')
-print(os.listdir("D:/pro/data/Datasets_cancer/"))
+#print(os.listdir("D:/pro/data/Datasets_cancer/"))
 
 
 data_dir = 'D:/pro/data/Datasets_cancer/'
